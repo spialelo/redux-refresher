@@ -1,6 +1,8 @@
 import React from 'react';
 import 'dotenv/config';
 import xhr from 'xhr';
+import Plot from 'react-plotly.js';
+// import CustomPlot from './CustomPlot';
 import './App.css';
 
 const API_KEY = process.env.REACT_APP_WEATHER_KEY;
@@ -10,7 +12,10 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      location: ''
+      location: '',
+      data: {},
+      dates: [],
+      temps: []
     };
 
   }
@@ -89,6 +94,25 @@ class App extends React.Component {
           <span className="temp">{ currTemp }</span>
           <span className="temp-symbol">°C</span>
         </p>
+
+        <Plot 
+          data={[
+            {
+              x: [1,2,3,4,5],
+              y: [1, 4, 9, 16, 25],
+              type: 'scatter',
+              mode: 'lines+markers',
+              marker: {color: 'red'},
+            }
+          ]}
+          layout={{margin: {
+                t: 0, r: 0, l: 30
+            },
+            xaxis: {
+                gridcolor: 'transparent'
+            }}}
+          displayModeBar={false}
+        />
       </div>
     );
   }
