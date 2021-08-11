@@ -2,7 +2,6 @@ import React from 'react';
 import 'dotenv/config';
 import xhr from 'xhr';
 import Plot from 'react-plotly.js';
-// import CustomPlot from './CustomPlot';
 import './App.css';
 
 const API_KEY = process.env.REACT_APP_WEATHER_KEY;
@@ -15,10 +14,25 @@ class App extends React.Component {
       location: '',
       data: {},
       dates: [],
-      temps: []
+      temps: [],
+      selected: {
+      }
     };
 
   }
+
+
+  onPlotClick = (data) => {
+    if(data.points) {
+      this.setState({
+        selected: {
+          date: data.points[0].x,
+          temp: data.points[0].y
+        }
+      })
+    }
+    console.log(data);
+  };
 
   fetchData = (evt) => {
     evt.preventDefault();
@@ -36,12 +50,6 @@ class App extends React.Component {
     let urlSuff = `&APPID=${API_KEY}&units=metric`;
     let url = urlPref + location + urlSuff;
 
-    /*
-    fetch(url).then(response => response.json())
-      .then(json => this.setState({data: json}))
-      .catch(error => console.log("Oops. Error."));
-    */
-
     xhr({
       url: url
     }, (err, data) => {
@@ -50,8 +58,25 @@ class App extends React.Component {
         return;
       }
 
+
+      let body = JSON.parse(data.body);
+      let list = body.list;
+      let dates = [];
+      let temps = [];
+      for(let i = 0; i < list.length; i++) {
+        dates.push(list[i].dt_txt);
+        temps.push(list[i].main.temp);
+      }
+
+
       this.setState({
-        data: JSON.parse(data.body)
+        data: body,
+        dates,
+        temps,
+        selected: {
+          date: '',
+          temp: null
+       	}
       }, () => {
         console.log('fetch data from ', this.state.location);
       });
@@ -70,13 +95,13 @@ class App extends React.Component {
 
   render() {
 
-  let currTemp = 'Specify a location';
+  let currTemp = 'Not loaded yet.';
   if(this.state.data && this.state.data.list) {
     currTemp = this.state.data.list[0].main.temp;
   }    
 
     return (
-      <div>
+      <div style={{margin: '0 auto', textAlign: 'center'}}>
         <h1>Weather v1.0</h1>
         <form onSubmit={this.fetchData}>
           <label htmlFor="usrLocation">
@@ -90,56 +115,40 @@ class App extends React.Component {
             />
           </label>
         </form>
-        <p className="temp-wrapper">
-          <span className="temp">{ currTemp }</span>
-          <span className="temp-symbol">°C</span>
-        </p>
-
-        <Plot 
-          data={[
-            {
-              x: [1,2,3,4,5],
-              y: [1, 4, 9, 16, 25],
-              type: 'scatter',
-              mode: 'lines+markers',
-              marker: {color: 'red'},
-            }
-          ]}
-          layout={{margin: {
-                t: 0, r: 0, l: 30
-            },
-            xaxis: {
-                gridcolor: 'transparent'
-            }}}
-          displayModeBar={false}
-        />
+        {(this.state.data && this.state.data.list) ? (
+          <div className="wrapper">
+          <p className="temp-wrapper">
+            <span className="temp">{ (this.state.selected && this.state.selected.temp) ? this.state.selected.temp : currTemp }</span>
+            <span className="temp-symbol">°C</span>
+            <span className="temp-date">
+            { (this.state.selected && this.state.selected.temp) ? this.state.selected.date : '' }
+            </span>
+          </p>
+          <h2>Forecast</h2>
+            <Plot 
+            data={[
+              {
+                x: this.state.dates,
+                y: this.state.temps,
+                type: 'scatter',
+              }
+            ]}
+            layout={{margin: {
+                  t: 0, r: 0, l: 30
+              },
+              xaxis: {
+                  gridcolor: 'transparent'
+              }}}
+            displayModeBar={false}
+            onClick={this.onPlotClick}
+          />
+        </div>
+        )
+        : null}
+        
       </div>
     );
   }
-
-
 }
-
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
 
 export default App;
