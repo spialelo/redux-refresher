@@ -34,6 +34,7 @@ class App extends React.Component {
     console.log(data);
   };
 
+  
   fetchData = (evt) => {
     evt.preventDefault();
     // ROOT_URL = `http://api.openweathermap.org/data/2.5/forecast?appid=${API_KEY}`;
