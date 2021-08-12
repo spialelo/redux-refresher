@@ -12,11 +12,17 @@ const API_KEY = process.env.REACT_APP_WEATHER_KEY;
 
 class App extends React.Component {
 
+  shouldComponentUpdate(nextProps) {
+		const xDataChanged = !this.props.xData.equals(nextProps.xData);
+		const yDataChanged = !this.props.yData.equals(nextProps.yData);
+
+		return xDataChanged || yDataChanged;
+	}
   
   fetchData = (evt) => {
     evt.preventDefault();
 
-    let location = encodeURIComponent(this.props.state.location);
+    let location = encodeURIComponent(this.props.redux.get('location'));
 
     let urlPref = 'https://api.openweathermap.org/data/2.5/forecast?q=';
     let urlSuff = `&APPID=${API_KEY}&units=metric`;
@@ -30,11 +36,13 @@ class App extends React.Component {
   onPlotClick = (data) => {
     if(data.points) {
       let number = data.points[0].pointNumber;
-      this.props.dispatch(setSelectedDate(this.props.state.dates[number]));
-      this.props.dispatch(setSelectedTemp(this.props.state.temps[number]));
+      this.props.dispatch(setSelectedDate(this.props.redux.getIn(['dates', number])));
+      this.props.dispatch(setSelectedTemp(this.props.redux.getIn(['temps', number])));
     }
     console.log(data);
   };
+
+  // TO DO: look into onUpdate callback. Possibly can be used to control rerenders
 
 
   changeLocation = (evt) => {
@@ -44,8 +52,9 @@ class App extends React.Component {
   render() {
 
     let currTemp = 'Not loaded yet.';
-    if(this.props.state.data && this.props.state.data.list) {
-      currTemp = this.props.state.data.list[0].main.temp;
+
+    if(this.props.redux.getIn(['data', 'list'])) {
+      currTemp = this.props.redux.getIn(['data', 'list', '0', 'main', 'temp']);
     }    
 
       return (
@@ -58,43 +67,43 @@ class App extends React.Component {
                 placeholder={"City, Country"}
                 type="text"
                 id="usrLocation"
-                value={this.props.state.location}
+                value={this.props.redux.get('location')}
                 onChange={this.changeLocation}
               />
             </label>
           </form>
-          {(this.props.state.data && this.props.state.data.list) ? (
+          {(this.props.redux.get('data') && this.props.redux.getIn(['data', 'list'])) ? (
             <div className="wrapper">
-              { (this.props.state.selected && this.props.state.selected.temp) ? 
-              <p className="temp-wrapper">
+              { (this.props.redux.get('selected') && this.props.redux.getIn(['selected', 'temp'])) ? 
+              <div className="temp-wrapper">
                 <span className="temp-date">
-                <p>The temperatures on { (this.props.state.selected && this.props.state.selected.temp) ? this.props.state.selected.date : '' }</p>
+                <p>The temperatures on { (this.props.redux.get('selected') && this.props.redux.getIn(['selected', 'temp'])) ? this.props.redux.getIn(['selected', 'date']) : '' }</p>
                 </span>
-              </p>
+              </div>
               :
-              <p className="temp-wrapper">
-                <p>The current temperature is <span className="temp">{ (this.props.state.selected && this.props.state.selected.temp) ? this.props.state.selected.temp : currTemp }
+              <div className="temp-wrapper">
+                <p>The current temperature is <span className="temp">{ (this.props.redux.get('selected') && this.props.redux.getIn(['selected', 'temp'])) ? this.props.redux.getIn(['selected', 'temp']) : currTemp }
                 <span className="temp-symbol">°C!</span></span>
                 </p>
-              </p>
+              </div>
               }
             <h2>Forecast</h2>
               <Plot 
-              data={[
-                {
-                  x: this.props.state.dates,
-                  y: this.props.state.temps,
-                  type: 'scatter',
-                }
-              ]}
-              layout={{margin: {
-                    t: 0, r: 0, l: 30
-                },
-                xaxis: {
-                    gridcolor: 'transparent'
-                }}}
-              displayModeBar={false}
-              onClick={this.onPlotClick}
+                data={[
+                  {
+                    x: this.props.redux.get('dates'),
+                    y: this.props.redux.get('temps'),
+                    type: 'scatter',
+                  }
+                ]}
+                layout={{margin: {
+                      t: 0, r: 0, l: 30
+                  },
+                  xaxis: {
+                      gridcolor: 'transparent'
+                  }}}
+                displayModeBar={false}
+                onClick={this.onPlotClick}
             />
           </div>
           )
@@ -107,8 +116,8 @@ class App extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    state
-  }
+    redux: state
+  };
 }
 
 export default connect(mapStateToProps)(App);

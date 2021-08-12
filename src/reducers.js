@@ -1,5 +1,7 @@
+import { fromJS } from 'immutable';
 
-let initialState = {
+
+let initialState = fromJS({
     location: '',
     data: {},
     dates: [],
@@ -8,40 +10,22 @@ let initialState = {
         date: '',
         temp: null
     }
-};
+});
 
 export default function mainReducer(state = initialState, action) {
     switch(action.type) {
         case 'CHANGE_LOCATION': 
-            return Object.assign({}, state, {
-                location: action.location
-            });
-        case 'SET_SELECTED_TEMP':
-            return Object.assign({}, state, {
-                selected: {
-                    temp: action.temp,
-                    date: state.selected.date
-                }
-            });
-        case 'SET_SELECTED_DATE':
-            return Object.assign({}, state, {
-                selected: {
-                    date: action.date,
-                    temp: state.selected.temp
-                }
-            });
+            return state.set('location', action.location);
         case 'SET_DATA':
-            return Object.assign({}, state, {
-                data: action.data
-            });
+            return state.set('data', action.data);
         case 'SET_DATES':
-            return Object.assign({}, state, {
-                dates: action.dates
-            });
+            return state.set('dates', action.dates);
         case 'SET_TEMPS':
-            return Object.assign({}, state, {
-                temps: action.temps
-            });
+            return state.set('temps', action.temps);
+        case 'SET_SELECTED_TEMP':
+            return state.setIn(['selected', 'temp'], action.temp)
+        case 'SET_SELECTED_DATE':
+            return state.setIn(['selected', 'date'], action.date);
         default:
             return state;
     }
