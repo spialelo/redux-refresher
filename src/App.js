@@ -65,7 +65,7 @@ class App extends React.Component {
           </form>
           {(this.props.state.data && this.props.state.data.list) ? (
             <div className="wrapper">
-              { (this.props.state.selected) ? 
+              { (this.props.state.selected && this.props.state.selected.temp) ? 
               <p className="temp-wrapper">
                 <span className="temp-date">
                 <p>The temperatures on { (this.props.state.selected && this.props.state.selected.temp) ? this.props.state.selected.date : '' }</p>
@@ -73,11 +73,9 @@ class App extends React.Component {
               </p>
               :
               <p className="temp-wrapper">
-                <span className="temp-date">
                 <p>The current temperature is <span className="temp">{ (this.props.state.selected && this.props.state.selected.temp) ? this.props.state.selected.temp : currTemp }
                 <span className="temp-symbol">°C!</span></span>
                 </p>
-                </span>
               </p>
               }
             <h2>Forecast</h2>
