@@ -10,7 +10,7 @@ import { changeLocation, setSelectedDate, setSelectedTemp, fetchData}  from './a
 
 const API_KEY = process.env.REACT_APP_WEATHER_KEY;
 
-class App extends React.Component {
+export class App extends React.Component {
 
   shouldComponentUpdate(nextProps) {
 		const xDataChanged = !this.props.xData.equals(nextProps.xData);

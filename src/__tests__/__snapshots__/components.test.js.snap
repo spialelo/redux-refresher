@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`components <App /> renders correctly 1`] = `
+<div
+  style={
+    Object {
+      "margin": "0 auto",
+      "textAlign": "center",
+    }
+  }
+>
+  <h1>
+    Weather v1.0
+  </h1>
+  <form
+    onSubmit={[Function]}
+  >
+    <label
+      htmlFor="usrLocation"
+    >
+      I want to know the weather for
+      <input
+        id="usrLocation"
+        onChange={[Function]}
+        placeholder="City, Country"
+        type="text"
+      />
+    </label>
+  </form>
+</div>
+`;
